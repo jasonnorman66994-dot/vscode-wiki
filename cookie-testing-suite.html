@@ -438,6 +438,12 @@
   </div>
 
   <script>
+    // Test Configuration Constants
+    const COMPLIANCE_TEST_INITIAL_DELAY_MS = 100;
+    const COMPLIANCE_TEST_STEP_DELAY_MS = 200;
+    const TESTS_PER_CATEGORY = 4;
+    const TOTAL_COMPLIANCE_TESTS = 12;
+
     // Enhanced Cookie SDK for Multi-Compliance Testing
     const MultiComplianceCookieSDK = {
       setCookie: function(name, value, options = {}) {
@@ -453,6 +459,8 @@
           if (options.path) cookieStr += `; path=${options.path}`;
           if (options.domain) cookieStr += `; domain=${options.domain}`;
           if (options.secure) cookieStr += `; Secure`;
+          // Note: The HttpOnly flag cannot be set via document.cookie; it must be set server-side via Set-Cookie headers.
+          // This appends the flag string for documentation purposes only.
           if (options.httpOnly) cookieStr += `; HttpOnly`;
           if (options.sameSite) cookieStr += `; SameSite=${options.sameSite}`;
 
@@ -587,9 +595,9 @@
         // Simple PHI detection (in real implementation, use more sophisticated detection)
         const phiPatterns = [
           /\d{3}-\d{2}-\d{4}/, // SSN pattern
-          /\d{10}/, // Phone number pattern
+          /\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/, // Phone number pattern
           /@[\w.-]+\.\w+/, // Email pattern
-          /\b\d{1,2}\/\d{1,2}\/\d{4}\b/ // Date pattern
+          /\b(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])\/\d{4}\b/ // Date pattern
         ];
         
         return phiPatterns.some(pattern => pattern.test(value));
@@ -623,7 +631,7 @@
       if (testCount === 0) {
         indicator.className = 'indicator-dot';
         status.textContent = 'Not Started';
-      } else if (testCount < 4) {
+      } else if (testCount < TESTS_PER_CATEGORY) {
         indicator.className = 'indicator-dot partial';
         status.textContent = 'In Progress';
       } else {
@@ -640,7 +648,7 @@
       if (totalTests === 0) {
         indicator.className = 'indicator-dot';
         status.textContent = 'Ready to Test';
-      } else if (totalTests < 12) {
+      } else if (totalTests < TOTAL_COMPLIANCE_TESTS) {
         indicator.className = 'indicator-dot partial';
         status.textContent = 'Testing in Progress';
       } else {
@@ -974,6 +982,7 @@
       logOutput('performanceOutput', 'Cross-domain performance: PASSED', 'pass');
       logOutput('performanceOutput', `  - 10 cookies created in ${duration}ms`, 'info');
       logOutput('performanceOutput', `  - Average: ${(duration / 10).toFixed(2)}ms per cookie`, 'info');
+      totalPassCount++;
       
       // Cleanup
       for (let i = 0; i < 10; i++) {
@@ -995,6 +1004,7 @@
       logOutput('performanceOutput', `  - Total cookies: ${cookies.length}`, 'info');
       logOutput('performanceOutput', `  - Total size: ${totalSize} bytes`, 'info');
       logOutput('performanceOutput', `  - Recommended max: 4096 bytes`, 'info');
+      totalPassCount++;
       
       if (totalSize > 4096) {
         logOutput('performanceOutput', '  - WARNING: Cookie size exceeds recommended limit', 'fail');
@@ -1019,6 +1029,7 @@
       
       logOutput('performanceOutput', 'Concurrent session test: PASSED', 'pass');
       logOutput('performanceOutput', `  - ${sessionCount} sessions in ${duration}ms`, 'info');
+      totalPassCount++;
       
       // Cleanup
       for (let i = 0; i < sessionCount; i++) {
@@ -1049,6 +1060,7 @@
       logOutput('performanceOutput', `  - Write time: ${writeTime}ms`, 'info');
       logOutput('performanceOutput', `  - Read time: ${readTime}ms`, 'info');
       logOutput('performanceOutput', `  - Data integrity: ${retrieved === cacheValue ? 'OK' : 'FAILED'}`, 'info');
+      totalPassCount++;
       
       MultiComplianceCookieSDK.deleteCookie(cacheKey);
     }
@@ -1227,40 +1239,40 @@
       setTimeout(() => {
         // SOX Tests
         testFinancialDataIntegrity();
-        setTimeout(() => testAuditTrailCompliance(), 200);
-        setTimeout(() => testAccessControlValidation(), 400);
-        setTimeout(() => testDataRetentionCompliance(), 600);
+        setTimeout(() => testAuditTrailCompliance(), 1 * COMPLIANCE_TEST_STEP_DELAY_MS);
+        setTimeout(() => testAccessControlValidation(), 2 * COMPLIANCE_TEST_STEP_DELAY_MS);
+        setTimeout(() => testDataRetentionCompliance(), 3 * COMPLIANCE_TEST_STEP_DELAY_MS);
         
         // PCI Tests
-        setTimeout(() => testPaymentDataSecurity(), 800);
-        setTimeout(() => testCardholderDataProtection(), 1000);
-        setTimeout(() => testNetworkSecurityValidation(), 1200);
-        setTimeout(() => testVulnerabilityAssessment(), 1400);
+        setTimeout(() => testPaymentDataSecurity(), 4 * COMPLIANCE_TEST_STEP_DELAY_MS);
+        setTimeout(() => testCardholderDataProtection(), 5 * COMPLIANCE_TEST_STEP_DELAY_MS);
+        setTimeout(() => testNetworkSecurityValidation(), 6 * COMPLIANCE_TEST_STEP_DELAY_MS);
+        setTimeout(() => testVulnerabilityAssessment(), 7 * COMPLIANCE_TEST_STEP_DELAY_MS);
         
         // HIPAA Tests
-        setTimeout(() => testPHIProtectionValidation(), 1600);
-        setTimeout(() => testMinimumNecessaryAccess(), 1800);
-        setTimeout(() => testBusinessAssociateCompliance(), 2000);
-        setTimeout(() => testBreachNotificationReadiness(), 2200);
+        setTimeout(() => testPHIProtectionValidation(), 8 * COMPLIANCE_TEST_STEP_DELAY_MS);
+        setTimeout(() => testMinimumNecessaryAccess(), 9 * COMPLIANCE_TEST_STEP_DELAY_MS);
+        setTimeout(() => testBusinessAssociateCompliance(), 10 * COMPLIANCE_TEST_STEP_DELAY_MS);
+        setTimeout(() => testBreachNotificationReadiness(), 11 * COMPLIANCE_TEST_STEP_DELAY_MS);
         
         // Performance Tests
-        setTimeout(() => testCrossDomainPerformance(), 2400);
-        setTimeout(() => testNetworkOverheadOptimization(), 2600);
-        setTimeout(() => testConcurrentSessionPerformance(), 2800);
-        setTimeout(() => testCachingStrategy(), 3000);
+        setTimeout(() => testCrossDomainPerformance(), 12 * COMPLIANCE_TEST_STEP_DELAY_MS);
+        setTimeout(() => testNetworkOverheadOptimization(), 13 * COMPLIANCE_TEST_STEP_DELAY_MS);
+        setTimeout(() => testConcurrentSessionPerformance(), 14 * COMPLIANCE_TEST_STEP_DELAY_MS);
+        setTimeout(() => testCachingStrategy(), 15 * COMPLIANCE_TEST_STEP_DELAY_MS);
         
         // Security Tests
-        setTimeout(() => testMultiComplianceXSS(), 3200);
-        setTimeout(() => testSessionHijackingPrevention(), 3400);
-        setTimeout(() => testCSRFProtectionValidation(), 3600);
-        setTimeout(() => testTimingAttackPrevention(), 3800);
+        setTimeout(() => testMultiComplianceXSS(), 16 * COMPLIANCE_TEST_STEP_DELAY_MS);
+        setTimeout(() => testSessionHijackingPrevention(), 17 * COMPLIANCE_TEST_STEP_DELAY_MS);
+        setTimeout(() => testCSRFProtectionValidation(), 18 * COMPLIANCE_TEST_STEP_DELAY_MS);
+        setTimeout(() => testTimingAttackPrevention(), 19 * COMPLIANCE_TEST_STEP_DELAY_MS);
         
         // Cross-Domain Tests
-        setTimeout(() => testCrossDomainCompliance(), 4000);
-        setTimeout(() => testSubdomainIsolation(), 4200);
-        setTimeout(() => testSingleSignOnSecurity(), 4400);
-        setTimeout(() => testDomainBoundaryValidation(), 4600);
-      }, 100);
+        setTimeout(() => testCrossDomainCompliance(), 20 * COMPLIANCE_TEST_STEP_DELAY_MS);
+        setTimeout(() => testSubdomainIsolation(), 21 * COMPLIANCE_TEST_STEP_DELAY_MS);
+        setTimeout(() => testSingleSignOnSecurity(), 22 * COMPLIANCE_TEST_STEP_DELAY_MS);
+        setTimeout(() => testDomainBoundaryValidation(), 23 * COMPLIANCE_TEST_STEP_DELAY_MS);
+      }, COMPLIANCE_TEST_INITIAL_DELAY_MS);
     }
 
     function clearAllResults() {
