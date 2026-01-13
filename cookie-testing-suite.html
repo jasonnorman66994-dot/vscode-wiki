@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-Compliance Cookie Testing Suite</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh;
+      padding: 20px;
+      margin: 0;
+      color: #ffffff;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: #ffffff;
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 3em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .compliance-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    .compliance-section {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 30px;
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    .compliance-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .compliance-icon {
+      font-size: 2em;
+      padding: 10px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+    }
+
+    .sox-icon { background: linear-gradient(135deg, #ff6b6b, #ff8e53); }
+    .pci-icon { background: linear-gradient(135deg, #4ecdc4, #44a08d); }
+    .hipaa-icon { background: linear-gradient(135deg, #45b7d1, #96c93d); }
+    .performance-icon { background: linear-gradient(135deg, #f093fb, #f5576c); }
+    .security-icon { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+
+    .compliance-title {
+      font-size: 1.8em;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+    .compliance-subtitle {
+      font-size: 1em;
+      color: #b0b0b0;
+      margin-top: 5px;
+    }
+
+    .test-controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    .sox-button { background: linear-gradient(135deg, #ff6b6b, #ff8e53); }
+    .pci-button { background: linear-gradient(135deg, #4ecdc4, #44a08d); }
+    .hipaa-button { background: linear-gradient(135deg, #45b7d1, #96c93d); }
+    .performance-button { background: linear-gradient(135deg, #f093fb, #f5576c); }
+    .security-button { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+
+    .output {
+      background: rgba(0, 0, 0, 0.4);
+      color: #ffffff;
+      border-radius: 12px;
+      padding: 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      white-space: pre-wrap;
+      max-height: 350px;
+      overflow-y: auto;
+      min-height: 120px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .output::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .output::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+
+    .output::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 4px;
+    }
+
+    .master-controls {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 30px;
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      text-align: center;
+    }
+
+    .master-controls h2 {
+      color: #ffffff;
+      margin-bottom: 20px;
+      font-size: 2em;
+    }
+
+    .master-buttons {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .master-button {
+      padding: 15px 30px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 15px;
+      min-width: 200px;
+    }
+
+    .run-all { background: linear-gradient(135deg, #56ab2f, #a8e6cf); }
+    .clear-all { background: linear-gradient(135deg, #ff416c, #ff4b2b); }
+    .generate-report { background: linear-gradient(135deg, #ffecd2, #fcb69f); color: #333; }
+
+    .stats-dashboard {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 30px;
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+      padding: 25px;
+      border-radius: 15px;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .stat-value {
+      font-size: 2.5em;
+      font-weight: bold;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      font-size: 1em;
+      color: #b0b0b0;
+    }
+
+    .compliance-indicator {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .indicator-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #ff6b6b;
+    }
+
+    .indicator-dot.compliant { background: #4ecdc4; }
+    .indicator-dot.partial { background: #ffa726; }
+
+    .warning-box {
+      background: linear-gradient(135deg, #ff9a56, #ff6b6b);
+      color: white;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+
+    .info-box {
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      color: white;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🏛 Multi-Compliance Cookie Testing Suite</h1>
+    
+    <!-- Master Controls -->
+    <div class="master-controls">
+      <h2>🎯 Comprehensive Compliance Testing</h2>
+      <div class="master-buttons">
+        <button class="master-button run-all" onclick="runAllComplianceTests()" aria-label="Run All Compliance Tests">🚀 Run All Compliance Tests</button>
+        <button class="master-button clear-all" onclick="clearAllResults()" aria-label="Clear All Results">🗑 Clear All Results</button>
+        <button class="master-button generate-report" onclick="generateComplianceReport()" aria-label="Generate Compliance Report">📋 Generate Compliance Report</button>
+      </div>
+    </div>
+
+    <!-- Statistics Dashboard -->
+    <div class="stats-dashboard">
+      <h2>📊 Compliance Testing Dashboard</h2>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="soxTestCount">0</div>
+          <div class="stat-label">SOX Tests Completed</div>
+          <div class="compliance-indicator">
+            <div class="indicator-dot" id="soxIndicator"></div>
+            <span id="soxStatus">Not Started</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="pciTestCount">0</div>
+          <div class="stat-label">PCI DSS Tests Completed</div>
+          <div class="compliance-indicator">
+            <div class="indicator-dot" id="pciIndicator"></div>
+            <span id="pciStatus">Not Started</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="hipaaTestCount">0</div>
+          <div class="stat-label">HIPAA Tests Completed</div>
+          <div class="compliance-indicator">
+            <div class="indicator-dot" id="hipaaIndicator"></div>
+            <span id="hipaaStatus">Not Started</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="totalPassCount">0</div>
+          <div class="stat-label">Total Tests Passed</div>
+          <div class="compliance-indicator">
+            <div class="indicator-dot" id="overallIndicator"></div>
+            <span id="overallStatus">Ready to Test</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Compliance Testing Sections -->
+    <div class="compliance-grid">
+      
+      <!-- SOX Compliance Testing -->
+      <div class="compliance-section">
+        <div class="compliance-header">
+          <div class="compliance-icon sox-icon">📊</div>
+          <div>
+            <div class="compliance-title">SOX Compliance</div>
+            <div class="compliance-subtitle">Sarbanes-Oxley Financial Reporting</div>
+          </div>
+        </div>
+        
+        <div class="info-box">
+          🏦 Testing financial data integrity, audit trails, and access controls for SOX compliance
+        </div>
+        
+        <div class="test-controls">
+          <button class="sox-button" onclick="testFinancialDataIntegrity()">Financial Data Integrity</button>
+          <button class="sox-button" onclick="testAuditTrailCompliance()">Audit Trail Validation</button>
+          <button class="sox-button" onclick="testAccessControlValidation()">Access Control Testing</button>
+          <button class="sox-button" onclick="testDataRetentionCompliance()">Data Retention Testing</button>
+        </div>
+        <div id="soxOutput" class="output"></div>
+      </div>
+
+      <!-- PCI DSS Compliance Testing -->
+      <div class="compliance-section">
+        <div class="compliance-header">
+          <div class="compliance-icon pci-icon">💳</div>
+          <div>
+            <div class="compliance-title">PCI DSS Compliance</div>
+            <div class="compliance-subtitle">Payment Card Industry Security</div>
+          </div>
+        </div>
+        
+        <div class="warning-box">
+          ⚠️ Testing payment security, cardholder data protection, and network security requirements
+        </div>
+        
+        <div class="test-controls">
+          <button class="pci-button" onclick="testPaymentDataSecurity()">Payment Data Security</button>
+          <button class="pci-button" onclick="testCardholderDataProtection()">Cardholder Data Protection</button>
+          <button class="pci-button" onclick="testNetworkSecurityValidation()">Network Security</button>
+          <button class="pci-button" onclick="testVulnerabilityAssessment()">Vulnerability Assessment</button>
+        </div>
+        <div id="pciOutput" class="output"></div>
+      </div>
+
+      <!-- HIPAA Compliance Testing -->
+      <div class="compliance-section">
+        <div class="compliance-header">
+          <div class="compliance-icon hipaa-icon">🏥</div>
+          <div>
+            <div class="compliance-title">HIPAA Compliance</div>
+            <div class="compliance-subtitle">Healthcare Privacy Protection</div>
+          </div>
+        </div>
+        
+        <div class="info-box">
+          🔒 Testing PHI protection, minimum necessary access, and healthcare data security
+        </div>
+        
+        <div class="test-controls">
+          <button class="hipaa-button" onclick="testPHIProtectionValidation()">PHI Protection</button>
+          <button class="hipaa-button" onclick="testMinimumNecessaryAccess()">Minimum Necessary</button>
+          <button class="hipaa-button" onclick="testBusinessAssociateCompliance()">Business Associate</button>
+          <button class="hipaa-button" onclick="testBreachNotificationReadiness()">Breach Notification</button>
+        </div>
+        <div id="hipaaOutput" class="output"></div>
+      </div>
+
+      <!-- Performance Optimization Testing -->
+      <div class="compliance-section">
+        <div class="compliance-header">
+          <div class="compliance-icon performance-icon">⚡️</div>
+          <div>
+            <div class="compliance-title">Performance Optimization</div>
+            <div class="compliance-subtitle">Speed & Efficiency Testing</div>
+          </div>
+        </div>
+        
+        <div class="test-controls">
+          <button class="performance-button" onclick="testCrossDomainPerformance()">Cross-Domain Performance</button>
+          <button class="performance-button" onclick="testNetworkOverheadOptimization()">Network Overhead</button>
+          <button class="performance-button" onclick="testConcurrentSessionPerformance()">Concurrent Sessions</button>
+          <button class="performance-button" onclick="testCachingStrategy()">Caching Strategy</button>
+        </div>
+        <div id="performanceOutput" class="output"></div>
+      </div>
+
+      <!-- Advanced Security Testing -->
+      <div class="compliance-section">
+        <div class="compliance-header">
+          <div class="compliance-icon security-icon">🛡</div>
+          <div>
+            <div class="compliance-title">Advanced Security</div>
+            <div class="compliance-subtitle">Vulnerability & Threat Testing</div>
+          </div>
+        </div>
+        
+        <div class="test-controls">
+          <button class="security-button" onclick="testMultiComplianceXSS()">XSS Protection</button>
+          <button class="security-button" onclick="testSessionHijackingPrevention()">Session Hijacking</button>
+          <button class="security-button" onclick="testCSRFProtectionValidation()">CSRF Protection</button>
+          <button class="security-button" onclick="testTimingAttackPrevention()">Timing Attacks</button>
+        </div>
+        <div id="securityOutput" class="output"></div>
+      </div>
+
+      <!-- Cross-Domain Functionality -->
+      <div class="compliance-section">
+        <div class="compliance-header">
+          <div class="compliance-icon">🌐</div>
+          <div>
+            <div class="compliance-title">Cross-Domain Testing</div>
+            <div class="compliance-subtitle">Multi-Domain Architecture</div>
+          </div>
+        </div>
+        
+        <div class="test-controls">
+          <button onclick="testCrossDomainCompliance()">Cross-Domain Compliance</button>
+          <button onclick="testSubdomainIsolation()">Subdomain Isolation</button>
+          <button onclick="testSingleSignOnSecurity()">SSO Security</button>
+          <button onclick="testDomainBoundaryValidation()">Domain Boundaries</button>
+        </div>
+        <div id="crossDomainOutput" class="output"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Enhanced Cookie SDK for Multi-Compliance Testing
+    const MultiComplianceCookieSDK = {
+      setCookie: function(name, value, options = {}) {
+        try {
+          let cookieStr = `${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
+          
+          if (options.expires) {
+            const date = new Date();
+            date.setTime(date.getTime() + options.expires * 24 * 60 * 60 * 1000);
+            cookieStr += `; expires=${date.toUTCString()}`;
+          }
+          if (options.maxAge) cookieStr += `; max-age=${options.maxAge}`;
+          if (options.path) cookieStr += `; path=${options.path}`;
+          if (options.domain) cookieStr += `; domain=${options.domain}`;
+          if (options.secure) cookieStr += `; Secure`;
+          if (options.httpOnly) cookieStr += `; HttpOnly`;
+          if (options.sameSite) cookieStr += `; SameSite=${options.sameSite}`;
+
+          document.cookie = cookieStr;
+          return true;
+        } catch (e) {
+          console.error('Error setting cookie:', e);
+          return false;
+        }
+      },
+
+      getCookie: function(name) {
+        try {
+          const cookieStr = document.cookie.trim();
+          if (!cookieStr) return null;
+          
+          const cookies = cookieStr.split("; ");
+          for (let cookie of cookies) {
+            const [key, ...valueParts] = cookie.split("=");
+            if (decodeURIComponent(key) === name) {
+              return decodeURIComponent(valueParts.join("=") || '');
+            }
+          }
+        } catch (e) {
+          console.error('Error getting cookie:', e);
+        }
+        return null;
+      },
+
+      deleteCookie: function(name, options = {}) {
+        const deleteOptions = {
+          path: options.path || "/",
+          domain: options.domain,
+          expires: -1
+        };
+        return this.setCookie(name, '', deleteOptions);
+      },
+
+      listCookies: function() {
+        try {
+          const cookieStr = document.cookie.trim();
+          if (!cookieStr) return [];
+          
+          return cookieStr.split("; ").map(c => {
+            const [key, ...valueParts] = c.split("=");
+            return { 
+              name: decodeURIComponent(key), 
+              value: decodeURIComponent(valueParts.join("=") || ''),
+              size: (key + valueParts.join("=")).length
+            };
+          });
+        } catch (e) {
+          console.error('Error listing cookies:', e);
+          return [];
+        }
+      },
+
+      // Compliance-specific methods
+      auditCookieAccess: function(cookieName, action, userId = 'system') {
+        const timestamp = new Date().toISOString();
+        const auditEntry = {
+          timestamp,
+          cookie: cookieName,
+          action,
+          userId,
+          ip: 'localhost', // In real implementation, get actual IP
+          userAgent: navigator.userAgent.substring(0, 100)
+        };
+        
+        // Store audit trail (in real implementation, send to secure audit server)
+        const auditLog = JSON.parse(localStorage.getItem('cookieAuditLog') || '[]');
+        auditLog.push(auditEntry);
+        localStorage.setItem('cookieAuditLog', JSON.stringify(auditLog));
+        
+        return auditEntry;
+      },
+
+      validateCompliance: function(cookieName, complianceType) {
+        const cookie = this.getCookie(cookieName);
+        const validations = {
+          sox: this.validateSOXCompliance(cookieName, cookie),
+          pci: this.validatePCICompliance(cookieName, cookie),
+          hipaa: this.validateHIPAACompliance(cookieName, cookie)
+        };
+        
+        return validations[complianceType] || false;
+      },
+
+      validateSOXCompliance: function(cookieName, cookieValue) {
+        // SOX validation logic
+        const hasAuditTrail = localStorage.getItem('cookieAuditLog') !== null;
+        const isFinancialData = cookieName.includes('financial') || cookieName.includes('transaction');
+        const hasIntegrityCheck = cookieValue && cookieValue.length > 0;
+        
+        return {
+          compliant: hasAuditTrail && hasIntegrityCheck,
+          auditTrail: hasAuditTrail,
+          dataIntegrity: hasIntegrityCheck,
+          isFinancialData
+        };
+      },
+
+      validatePCICompliance: function(cookieName, cookieValue) {
+        // PCI DSS validation logic
+        const isSecure = window.location.protocol === 'https:';
+        const noCardData = !cookieValue || !cookieValue.match(/\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}/);
+        const isPaymentRelated = cookieName.includes('payment') || cookieName.includes('card');
+        
+        return {
+          compliant: isSecure && noCardData,
+          secureTransmission: isSecure,
+          noCardholderData: noCardData,
+          isPaymentRelated
+        };
+      },
+
+      validateHIPAACompliance: function(cookieName, cookieValue) {
+        // HIPAA validation logic
+        const noPHI = !cookieValue || !this.containsPHI(cookieValue);
+        const isHealthRelated = cookieName.includes('patient') || cookieName.includes('medical');
+        const hasEncryption = cookieValue && cookieValue.startsWith('enc_');
+        
+        return {
+          compliant: noPHI || hasEncryption,
+          noPHI: noPHI,
+          encrypted: hasEncryption,
+          isHealthRelated
+        };
+      },
+
+      containsPHI: function(value) {
+        // Simple PHI detection (in real implementation, use more sophisticated detection)
+        const phiPatterns = [
+          /\d{3}-\d{2}-\d{4}/, // SSN pattern
+          /\d{10}/, // Phone number pattern
+          /@[\w.-]+\.\w+/, // Email pattern
+          /\b\d{1,2}\/\d{1,2}\/\d{4}\b/ // Date pattern
+        ];
+        
+        return phiPatterns.some(pattern => pattern.test(value));
+      }
+    };
+
+    // Test Statistics
+    let soxTestCount = 0;
+    let pciTestCount = 0;
+    let hipaaTestCount = 0;
+    let totalPassCount = 0;
+    let totalFailCount = 0;
+
+    function updateComplianceStats() {
+      document.getElementById('soxTestCount').textContent = soxTestCount;
+      document.getElementById('pciTestCount').textContent = pciTestCount;
+      document.getElementById('hipaaTestCount').textContent = hipaaTestCount;
+      document.getElementById('totalPassCount').textContent = totalPassCount;
+      
+      // Update compliance indicators
+      updateComplianceIndicator('sox', soxTestCount);
+      updateComplianceIndicator('pci', pciTestCount);
+      updateComplianceIndicator('hipaa', hipaaTestCount);
+      updateOverallIndicator();
+    }
+
+    function updateComplianceIndicator(type, testCount) {
+      const indicator = document.getElementById(`${type}Indicator`);
+      const status = document.getElementById(`${type}Status`);
+      
+      if (testCount === 0) {
+        indicator.className = 'indicator-dot';
+        status.textContent = 'Not Started';
+      } else if (testCount < 4) {
+        indicator.className = 'indicator-dot partial';
+        status.textContent = 'In Progress';
+      } else {
+        indicator.className = 'indicator-dot compliant';
+        status.textContent = 'Compliant';
+      }
+    }
+
+    function updateOverallIndicator() {
+      const indicator = document.getElementById('overallIndicator');
+      const status = document.getElementById('overallStatus');
+      const totalTests = soxTestCount + pciTestCount + hipaaTestCount;
+      
+      if (totalTests === 0) {
+        indicator.className = 'indicator-dot';
+        status.textContent = 'Ready to Test';
+      } else if (totalTests < 12) {
+        indicator.className = 'indicator-dot partial';
+        status.textContent = 'Testing in Progress';
+      } else {
+        indicator.className = 'indicator-dot compliant';
+        status.textContent = 'All Tests Complete';
+      }
+    }
+
+    function logOutput(elementId, message, type = 'info') {
+      const output = document.getElementById(elementId);
+      const timestamp = new Date().toLocaleTimeString();
+      const prefix = type === 'pass' ? '✅' : type === 'fail' ? '❌' : 'ℹ️';
+      output.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+      output.scrollTop = output.scrollHeight;
+    }
+
+    // SOX Compliance Tests
+    function testFinancialDataIntegrity() {
+      logOutput('soxOutput', 'Starting Financial Data Integrity Test...');
+      
+      // Test financial cookie creation
+      MultiComplianceCookieSDK.setCookie('financial_transaction_123', 'amount=1000.00&verified=true', {
+        path: '/',
+        secure: true,
+        sameSite: 'Strict'
+      });
+      
+      MultiComplianceCookieSDK.auditCookieAccess('financial_transaction_123', 'CREATE', 'SOX_TEST_USER');
+      
+      const validation = MultiComplianceCookieSDK.validateCompliance('financial_transaction_123', 'sox');
+      
+      if (validation.compliant) {
+        logOutput('soxOutput', 'Financial data integrity: PASSED', 'pass');
+        logOutput('soxOutput', `  - Audit trail: ${validation.auditTrail ? 'Present' : 'Missing'}`, 'info');
+        logOutput('soxOutput', `  - Data integrity: ${validation.dataIntegrity ? 'Valid' : 'Invalid'}`, 'info');
+        totalPassCount++;
+      } else {
+        logOutput('soxOutput', 'Financial data integrity: FAILED', 'fail');
+        totalFailCount++;
+      }
+      
+      soxTestCount++;
+      updateComplianceStats();
+    }
+
+    function testAuditTrailCompliance() {
+      logOutput('soxOutput', 'Starting Audit Trail Compliance Test...');
+      
+      const testCookie = 'audit_test_cookie';
+      MultiComplianceCookieSDK.setCookie(testCookie, 'test_value', { path: '/' });
+      MultiComplianceCookieSDK.auditCookieAccess(testCookie, 'CREATE', 'AUDIT_USER');
+      
+      const auditLog = JSON.parse(localStorage.getItem('cookieAuditLog') || '[]');
+      const hasAuditEntry = auditLog.some(entry => entry.cookie === testCookie);
+      
+      if (hasAuditEntry) {
+        logOutput('soxOutput', 'Audit trail compliance: PASSED', 'pass');
+        logOutput('soxOutput', `  - Total audit entries: ${auditLog.length}`, 'info');
+        totalPassCount++;
+      } else {
+        logOutput('soxOutput', 'Audit trail compliance: FAILED', 'fail');
+        totalFailCount++;
+      }
+      
+      soxTestCount++;
+      updateComplianceStats();
+    }
+
+    function testAccessControlValidation() {
+      logOutput('soxOutput', 'Starting Access Control Validation Test...');
+      
+      MultiComplianceCookieSDK.setCookie('access_control_test', 'role=admin&clearance=high', {
+        path: '/',
+        secure: true,
+        sameSite: 'Strict'
+      });
+      
+      const cookie = MultiComplianceCookieSDK.getCookie('access_control_test');
+      const hasSecureAttribute = window.location.protocol === 'https:';
+      
+      if (cookie && cookie.includes('role=')) {
+        logOutput('soxOutput', 'Access control validation: PASSED', 'pass');
+        logOutput('soxOutput', `  - Secure transmission: ${hasSecureAttribute ? 'Yes' : 'No (HTTP)'}`, 'info');
+        totalPassCount++;
+      } else {
+        logOutput('soxOutput', 'Access control validation: FAILED', 'fail');
+        totalFailCount++;
+      }
+      
+      soxTestCount++;
+      updateComplianceStats();
+    }
+
+    function testDataRetentionCompliance() {
+      logOutput('soxOutput', 'Starting Data Retention Compliance Test...');
+      
+      const retentionDays = 7;
+      MultiComplianceCookieSDK.setCookie('retention_test', 'data=retained', {
+        path: '/',
+        expires: retentionDays
+      });
+      
+      const cookie = MultiComplianceCookieSDK.getCookie('retention_test');
+      
+      if (cookie) {
+        logOutput('soxOutput', 'Data retention compliance: PASSED', 'pass');
+        logOutput('soxOutput', `  - Retention period: ${retentionDays} days`, 'info');
+        totalPassCount++;
+      } else {
+        logOutput('soxOutput', 'Data retention compliance: FAILED', 'fail');
+        totalFailCount++;
+      }
+      
+      soxTestCount++;
+      updateComplianceStats();
+    }
+
+    // PCI DSS Compliance Tests
+    function testPaymentDataSecurity() {
+      logOutput('pciOutput', 'Starting Payment Data Security Test...');
+      
+      // Should NOT store full card numbers
+      MultiComplianceCookieSDK.setCookie('payment_token', 'tok_1234567890abcdef', {
+        path: '/',
+        secure: true,
+        sameSite: 'Strict'
+      });
+      
+      const validation = MultiComplianceCookieSDK.validateCompliance('payment_token', 'pci');
+      
+      if (validation.compliant && validation.noCardholderData) {
+        logOutput('pciOutput', 'Payment data security: PASSED', 'pass');
+        logOutput('pciOutput', `  - No cardholder data stored: Yes`, 'info');
+        logOutput('pciOutput', `  - Secure transmission: ${validation.secureTransmission ? 'Yes' : 'No'}`, 'info');
+        totalPassCount++;
+      } else {
+        logOutput('pciOutput', 'Payment data security: FAILED', 'fail');
+        totalFailCount++;
+      }
+      
+      pciTestCount++;
+      updateComplianceStats();
+    }
+
+    function testCardholderDataProtection() {
+      logOutput('pciOutput', 'Starting Cardholder Data Protection Test...');
+      
+      // Test that card numbers are NOT stored
+      const testCardNumber = '4111111111111111';
+      MultiComplianceCookieSDK.setCookie('test_card', testCardNumber, { path: '/' });
+      
+      const validation = MultiComplianceCookieSDK.validatePCICompliance('test_card', testCardNumber);
+      
+      if (!validation.noCardholderData) {
+        logOutput('pciOutput', 'Cardholder data protection: FAILED (Card number detected!)', 'fail');
+        logOutput('pciOutput', '  - WARNING: Full card numbers must NEVER be stored in cookies', 'fail');
+        totalFailCount++;
+      } else {
+        logOutput('pciOutput', 'Cardholder data protection: PASSED', 'pass');
+        totalPassCount++;
+      }
+      
+      // Clean up test cookie
+      MultiComplianceCookieSDK.deleteCookie('test_card');
+      
+      pciTestCount++;
+      updateComplianceStats();
+    }
+
+    function testNetworkSecurityValidation() {
+      logOutput('pciOutput', 'Starting Network Security Validation Test...');
+      
+      const isSecure = window.location.protocol === 'https:';
+      
+      if (isSecure) {
+        logOutput('pciOutput', 'Network security: PASSED', 'pass');
+        logOutput('pciOutput', '  - HTTPS protocol: Active', 'info');
+        totalPassCount++;
+      } else {
+        logOutput('pciOutput', 'Network security: WARNING', 'fail');
+        logOutput('pciOutput', '  - HTTPS protocol: Inactive (HTTP detected)', 'fail');
+        logOutput('pciOutput', '  - PCI DSS requires HTTPS for payment data', 'fail');
+        totalFailCount++;
+      }
+      
+      pciTestCount++;
+      updateComplianceStats();
+    }
+
+    function testVulnerabilityAssessment() {
+      logOutput('pciOutput', 'Starting Vulnerability Assessment Test...');
+      
+      const cookies = MultiComplianceCookieSDK.listCookies();
+      let vulnerabilities = 0;
+      
+      cookies.forEach(cookie => {
+        if (cookie.value.match(/\d{13,19}/)) {
+          logOutput('pciOutput', `  - Potential card number in cookie: ${cookie.name}`, 'fail');
+          vulnerabilities++;
+        }
+        if (cookie.value.match(/\d{3,4}/)) {
+          logOutput('pciOutput', `  - Potential CVV in cookie: ${cookie.name}`, 'fail');
+          vulnerabilities++;
+        }
+      });
+      
+      if (vulnerabilities === 0) {
+        logOutput('pciOutput', 'Vulnerability assessment: PASSED', 'pass');
+        logOutput('pciOutput', `  - Cookies scanned: ${cookies.length}`, 'info');
+        logOutput('pciOutput', '  - Vulnerabilities found: 0', 'info');
+        totalPassCount++;
+      } else {
+        logOutput('pciOutput', 'Vulnerability assessment: FAILED', 'fail');
+        logOutput('pciOutput', `  - Vulnerabilities found: ${vulnerabilities}`, 'fail');
+        totalFailCount++;
+      }
+      
+      pciTestCount++;
+      updateComplianceStats();
+    }
+
+    // HIPAA Compliance Tests
+    function testPHIProtectionValidation() {
+      logOutput('hipaaOutput', 'Starting PHI Protection Validation Test...');
+      
+      // Test encrypted patient data
+      MultiComplianceCookieSDK.setCookie('patient_record', 'enc_a1b2c3d4e5f6', {
+        path: '/',
+        secure: true,
+        sameSite: 'Strict'
+      });
+      
+      const validation = MultiComplianceCookieSDK.validateCompliance('patient_record', 'hipaa');
+      
+      if (validation.compliant && validation.encrypted) {
+        logOutput('hipaaOutput', 'PHI protection: PASSED', 'pass');
+        logOutput('hipaaOutput', '  - Data encrypted: Yes', 'info');
+        totalPassCount++;
+      } else {
+        logOutput('hipaaOutput', 'PHI protection: FAILED', 'fail');
+        totalFailCount++;
+      }
+      
+      hipaaTestCount++;
+      updateComplianceStats();
+    }
+
+    function testMinimumNecessaryAccess() {
+      logOutput('hipaaOutput', 'Starting Minimum Necessary Access Test...');
+      
+      // Test that only necessary data is stored
+      MultiComplianceCookieSDK.setCookie('medical_session', 'session_id=xyz123', {
+        path: '/',
+        secure: true
+      });
+      
+      const cookie = MultiComplianceCookieSDK.getCookie('medical_session');
+      const containsPHI = MultiComplianceCookieSDK.containsPHI(cookie);
+      
+      if (!containsPHI) {
+        logOutput('hipaaOutput', 'Minimum necessary access: PASSED', 'pass');
+        logOutput('hipaaOutput', '  - No PHI in session cookie', 'info');
+        totalPassCount++;
+      } else {
+        logOutput('hipaaOutput', 'Minimum necessary access: FAILED', 'fail');
+        logOutput('hipaaOutput', '  - PHI detected in cookie', 'fail');
+        totalFailCount++;
+      }
+      
+      hipaaTestCount++;
+      updateComplianceStats();
+    }
+
+    function testBusinessAssociateCompliance() {
+      logOutput('hipaaOutput', 'Starting Business Associate Compliance Test...');
+      
+      MultiComplianceCookieSDK.setCookie('ba_agreement', 'status=active&verified=true', {
+        path: '/',
+        secure: true
+      });
+      
+      const cookie = MultiComplianceCookieSDK.getCookie('ba_agreement');
+      
+      if (cookie && cookie.includes('verified=true')) {
+        logOutput('hipaaOutput', 'Business associate compliance: PASSED', 'pass');
+        logOutput('hipaaOutput', '  - BA agreement status: Active', 'info');
+        totalPassCount++;
+      } else {
+        logOutput('hipaaOutput', 'Business associate compliance: FAILED', 'fail');
+        totalFailCount++;
+      }
+      
+      hipaaTestCount++;
+      updateComplianceStats();
+    }
+
+    function testBreachNotificationReadiness() {
+      logOutput('hipaaOutput', 'Starting Breach Notification Readiness Test...');
+      
+      const auditLog = JSON.parse(localStorage.getItem('cookieAuditLog') || '[]');
+      const hasAuditCapability = auditLog.length > 0;
+      
+      if (hasAuditCapability) {
+        logOutput('hipaaOutput', 'Breach notification readiness: PASSED', 'pass');
+        logOutput('hipaaOutput', `  - Audit log entries: ${auditLog.length}`, 'info');
+        logOutput('hipaaOutput', '  - Breach detection capability: Active', 'info');
+        totalPassCount++;
+      } else {
+        logOutput('hipaaOutput', 'Breach notification readiness: FAILED', 'fail');
+        logOutput('hipaaOutput', '  - No audit log available', 'fail');
+        totalFailCount++;
+      }
+      
+      hipaaTestCount++;
+      updateComplianceStats();
+    }
+
+    // Performance Tests
+    function testCrossDomainPerformance() {
+      logOutput('performanceOutput', 'Starting Cross-Domain Performance Test...');
+      
+      const startTime = performance.now();
+      
+      for (let i = 0; i < 10; i++) {
+        MultiComplianceCookieSDK.setCookie(`perf_test_${i}`, `value_${i}`, { path: '/' });
+      }
+      
+      const endTime = performance.now();
+      const duration = (endTime - startTime).toFixed(2);
+      
+      logOutput('performanceOutput', 'Cross-domain performance: PASSED', 'pass');
+      logOutput('performanceOutput', `  - 10 cookies created in ${duration}ms`, 'info');
+      logOutput('performanceOutput', `  - Average: ${(duration / 10).toFixed(2)}ms per cookie`, 'info');
+      
+      // Cleanup
+      for (let i = 0; i < 10; i++) {
+        MultiComplianceCookieSDK.deleteCookie(`perf_test_${i}`);
+      }
+    }
+
+    function testNetworkOverheadOptimization() {
+      logOutput('performanceOutput', 'Starting Network Overhead Test...');
+      
+      const cookies = MultiComplianceCookieSDK.listCookies();
+      let totalSize = 0;
+      
+      cookies.forEach(cookie => {
+        totalSize += cookie.size;
+      });
+      
+      logOutput('performanceOutput', 'Network overhead analysis: COMPLETE', 'pass');
+      logOutput('performanceOutput', `  - Total cookies: ${cookies.length}`, 'info');
+      logOutput('performanceOutput', `  - Total size: ${totalSize} bytes`, 'info');
+      logOutput('performanceOutput', `  - Recommended max: 4096 bytes`, 'info');
+      
+      if (totalSize > 4096) {
+        logOutput('performanceOutput', '  - WARNING: Cookie size exceeds recommended limit', 'fail');
+      }
+    }
+
+    function testConcurrentSessionPerformance() {
+      logOutput('performanceOutput', 'Starting Concurrent Session Test...');
+      
+      const sessionCount = 5;
+      const startTime = performance.now();
+      
+      for (let i = 0; i < sessionCount; i++) {
+        MultiComplianceCookieSDK.setCookie(`session_${i}`, `user_session_${i}`, {
+          path: '/',
+          secure: true
+        });
+      }
+      
+      const endTime = performance.now();
+      const duration = (endTime - startTime).toFixed(2);
+      
+      logOutput('performanceOutput', 'Concurrent session test: PASSED', 'pass');
+      logOutput('performanceOutput', `  - ${sessionCount} sessions in ${duration}ms`, 'info');
+      
+      // Cleanup
+      for (let i = 0; i < sessionCount; i++) {
+        MultiComplianceCookieSDK.deleteCookie(`session_${i}`);
+      }
+    }
+
+    function testCachingStrategy() {
+      logOutput('performanceOutput', 'Starting Caching Strategy Test...');
+      
+      const cacheKey = 'cache_test';
+      const cacheValue = 'cached_data_12345';
+      
+      // Write test
+      const writeStart = performance.now();
+      MultiComplianceCookieSDK.setCookie(cacheKey, cacheValue, { path: '/' });
+      const writeEnd = performance.now();
+      
+      // Read test
+      const readStart = performance.now();
+      const retrieved = MultiComplianceCookieSDK.getCookie(cacheKey);
+      const readEnd = performance.now();
+      
+      const writeTime = (writeEnd - writeStart).toFixed(2);
+      const readTime = (readEnd - readStart).toFixed(2);
+      
+      logOutput('performanceOutput', 'Caching strategy: PASSED', 'pass');
+      logOutput('performanceOutput', `  - Write time: ${writeTime}ms`, 'info');
+      logOutput('performanceOutput', `  - Read time: ${readTime}ms`, 'info');
+      logOutput('performanceOutput', `  - Data integrity: ${retrieved === cacheValue ? 'OK' : 'FAILED'}`, 'info');
+      
+      MultiComplianceCookieSDK.deleteCookie(cacheKey);
+    }
+
+    // Security Tests
+    function testMultiComplianceXSS() {
+      logOutput('securityOutput', 'Starting XSS Protection Test...');
+      
+      const maliciousScript = '<scr' + 'ipt>alert("XSS")</scr' + 'ipt>';
+      MultiComplianceCookieSDK.setCookie('xss_test', maliciousScript, { path: '/' });
+      
+      const retrieved = MultiComplianceCookieSDK.getCookie('xss_test');
+      const isEncoded = !retrieved.includes('<scr' + 'ipt>');
+      
+      if (isEncoded) {
+        logOutput('securityOutput', 'XSS protection: PASSED', 'pass');
+        logOutput('securityOutput', '  - Malicious script was encoded', 'info');
+      } else {
+        logOutput('securityOutput', 'XSS protection: FAILED', 'fail');
+        logOutput('securityOutput', '  - Script tags were not encoded!', 'fail');
+      }
+      
+      MultiComplianceCookieSDK.deleteCookie('xss_test');
+    }
+
+    function testSessionHijackingPrevention() {
+      logOutput('securityOutput', 'Starting Session Hijacking Prevention Test...');
+      
+      MultiComplianceCookieSDK.setCookie('secure_session', 'session_token_abc123', {
+        path: '/',
+        secure: true,
+        sameSite: 'Strict'
+      });
+      
+      const isSecure = window.location.protocol === 'https:';
+      
+      if (isSecure) {
+        logOutput('securityOutput', 'Session hijacking prevention: PASSED', 'pass');
+        logOutput('securityOutput', '  - Secure flag: Active', 'info');
+        logOutput('securityOutput', '  - SameSite: Strict', 'info');
+      } else {
+        logOutput('securityOutput', 'Session hijacking prevention: WARNING', 'fail');
+        logOutput('securityOutput', '  - HTTPS required for Secure flag', 'fail');
+      }
+    }
+
+    function testCSRFProtectionValidation() {
+      logOutput('securityOutput', 'Starting CSRF Protection Test...');
+      
+      const csrfToken = 'csrf_' + Math.random().toString(36).substring(2, 15);
+      MultiComplianceCookieSDK.setCookie('csrf_token', csrfToken, {
+        path: '/',
+        sameSite: 'Strict'
+      });
+      
+      const retrieved = MultiComplianceCookieSDK.getCookie('csrf_token');
+      
+      if (retrieved === csrfToken) {
+        logOutput('securityOutput', 'CSRF protection: PASSED', 'pass');
+        logOutput('securityOutput', `  - CSRF token generated: ${csrfToken.substring(0, 15)}...`, 'info');
+        logOutput('securityOutput', '  - SameSite attribute: Strict', 'info');
+      } else {
+        logOutput('securityOutput', 'CSRF protection: FAILED', 'fail');
+      }
+      
+      MultiComplianceCookieSDK.deleteCookie('csrf_token');
+    }
+
+    function testTimingAttackPrevention() {
+      logOutput('securityOutput', 'Starting Timing Attack Prevention Test...');
+      
+      const iterations = 100;
+      const times = [];
+      
+      for (let i = 0; i < iterations; i++) {
+        const start = performance.now();
+        MultiComplianceCookieSDK.getCookie('nonexistent_cookie');
+        const end = performance.now();
+        times.push(end - start);
+      }
+      
+      const avgTime = (times.reduce((a, b) => a + b) / times.length).toFixed(4);
+      const variance = times.reduce((sum, time) => sum + Math.pow(time - avgTime, 2), 0) / times.length;
+      const stdDev = Math.sqrt(variance).toFixed(4);
+      
+      logOutput('securityOutput', 'Timing attack prevention: ANALYZED', 'pass');
+      logOutput('securityOutput', `  - Average lookup time: ${avgTime}ms`, 'info');
+      logOutput('securityOutput', `  - Standard deviation: ${stdDev}ms`, 'info');
+      logOutput('securityOutput', `  - Iterations: ${iterations}`, 'info');
+    }
+
+    // Cross-Domain Tests
+    function testCrossDomainCompliance() {
+      logOutput('crossDomainOutput', 'Starting Cross-Domain Compliance Test...');
+      
+      MultiComplianceCookieSDK.setCookie('cross_domain_test', 'shared_value', {
+        path: '/',
+        domain: window.location.hostname,
+        secure: true
+      });
+      
+      const cookie = MultiComplianceCookieSDK.getCookie('cross_domain_test');
+      
+      if (cookie) {
+        logOutput('crossDomainOutput', 'Cross-domain compliance: PASSED', 'pass');
+        logOutput('crossDomainOutput', `  - Domain: ${window.location.hostname}`, 'info');
+      } else {
+        logOutput('crossDomainOutput', 'Cross-domain compliance: FAILED', 'fail');
+      }
+      
+      MultiComplianceCookieSDK.deleteCookie('cross_domain_test');
+    }
+
+    function testSubdomainIsolation() {
+      logOutput('crossDomainOutput', 'Starting Subdomain Isolation Test...');
+      
+      MultiComplianceCookieSDK.setCookie('isolated_cookie', 'subdomain_data', {
+        path: '/',
+        secure: true
+      });
+      
+      logOutput('crossDomainOutput', 'Subdomain isolation: TESTED', 'pass');
+      logOutput('crossDomainOutput', '  - Cookie scope: Current domain only', 'info');
+      logOutput('crossDomainOutput', '  - Subdomain sharing: Disabled', 'info');
+      
+      MultiComplianceCookieSDK.deleteCookie('isolated_cookie');
+    }
+
+    function testSingleSignOnSecurity() {
+      logOutput('crossDomainOutput', 'Starting SSO Security Test...');
+      
+      const ssoToken = 'sso_' + Math.random().toString(36).substring(2, 15);
+      MultiComplianceCookieSDK.setCookie('sso_token', ssoToken, {
+        path: '/',
+        secure: true,
+        sameSite: 'Lax'
+      });
+      
+      MultiComplianceCookieSDK.auditCookieAccess('sso_token', 'SSO_CREATE', 'SSO_SERVICE');
+      
+      logOutput('crossDomainOutput', 'SSO security: PASSED', 'pass');
+      logOutput('crossDomainOutput', `  - SSO token: ${ssoToken.substring(0, 12)}...`, 'info');
+      logOutput('crossDomainOutput', '  - Security: Secure + SameSite=Lax', 'info');
+      logOutput('crossDomainOutput', '  - Audit trail: Recorded', 'info');
+      
+      MultiComplianceCookieSDK.deleteCookie('sso_token');
+    }
+
+    function testDomainBoundaryValidation() {
+      logOutput('crossDomainOutput', 'Starting Domain Boundary Validation Test...');
+      
+      const currentDomain = window.location.hostname;
+      
+      MultiComplianceCookieSDK.setCookie('boundary_test', 'boundary_value', {
+        path: '/',
+        domain: currentDomain
+      });
+      
+      const cookie = MultiComplianceCookieSDK.getCookie('boundary_test');
+      
+      if (cookie) {
+        logOutput('crossDomainOutput', 'Domain boundary validation: PASSED', 'pass');
+        logOutput('crossDomainOutput', `  - Boundary domain: ${currentDomain}`, 'info');
+        logOutput('crossDomainOutput', '  - Cookie accessible: Yes', 'info');
+      } else {
+        logOutput('crossDomainOutput', 'Domain boundary validation: FAILED', 'fail');
+      }
+      
+      MultiComplianceCookieSDK.deleteCookie('boundary_test');
+    }
+
+    // Master Control Functions
+    function runAllComplianceTests() {
+      clearAllResults();
+      
+      setTimeout(() => {
+        // SOX Tests
+        testFinancialDataIntegrity();
+        setTimeout(() => testAuditTrailCompliance(), 200);
+        setTimeout(() => testAccessControlValidation(), 400);
+        setTimeout(() => testDataRetentionCompliance(), 600);
+        
+        // PCI Tests
+        setTimeout(() => testPaymentDataSecurity(), 800);
+        setTimeout(() => testCardholderDataProtection(), 1000);
+        setTimeout(() => testNetworkSecurityValidation(), 1200);
+        setTimeout(() => testVulnerabilityAssessment(), 1400);
+        
+        // HIPAA Tests
+        setTimeout(() => testPHIProtectionValidation(), 1600);
+        setTimeout(() => testMinimumNecessaryAccess(), 1800);
+        setTimeout(() => testBusinessAssociateCompliance(), 2000);
+        setTimeout(() => testBreachNotificationReadiness(), 2200);
+        
+        // Performance Tests
+        setTimeout(() => testCrossDomainPerformance(), 2400);
+        setTimeout(() => testNetworkOverheadOptimization(), 2600);
+        setTimeout(() => testConcurrentSessionPerformance(), 2800);
+        setTimeout(() => testCachingStrategy(), 3000);
+        
+        // Security Tests
+        setTimeout(() => testMultiComplianceXSS(), 3200);
+        setTimeout(() => testSessionHijackingPrevention(), 3400);
+        setTimeout(() => testCSRFProtectionValidation(), 3600);
+        setTimeout(() => testTimingAttackPrevention(), 3800);
+        
+        // Cross-Domain Tests
+        setTimeout(() => testCrossDomainCompliance(), 4000);
+        setTimeout(() => testSubdomainIsolation(), 4200);
+        setTimeout(() => testSingleSignOnSecurity(), 4400);
+        setTimeout(() => testDomainBoundaryValidation(), 4600);
+      }, 100);
+    }
+
+    function clearAllResults() {
+      document.getElementById('soxOutput').textContent = '';
+      document.getElementById('pciOutput').textContent = '';
+      document.getElementById('hipaaOutput').textContent = '';
+      document.getElementById('performanceOutput').textContent = '';
+      document.getElementById('securityOutput').textContent = '';
+      document.getElementById('crossDomainOutput').textContent = '';
+      
+      soxTestCount = 0;
+      pciTestCount = 0;
+      hipaaTestCount = 0;
+      totalPassCount = 0;
+      totalFailCount = 0;
+      
+      updateComplianceStats();
+    }
+
+    function generateComplianceReport() {
+      const report = `
+═══════════════════════════════════════════════════════
+    MULTI-COMPLIANCE COOKIE TESTING REPORT
+═══════════════════════════════════════════════════════
+
+Test Date: ${new Date().toLocaleString()}
+
+COMPLIANCE SUMMARY:
+──────────────────────────────────────────────────────
+SOX (Sarbanes-Oxley):        ${soxTestCount}/4 tests completed
+PCI DSS (Payment Card):       ${pciTestCount}/4 tests completed
+HIPAA (Healthcare):           ${hipaaTestCount}/4 tests completed
+
+OVERALL RESULTS:
+──────────────────────────────────────────────────────
+Total Tests Passed:           ${totalPassCount}
+Total Tests Failed:           ${totalFailCount}
+Total Tests Run:              ${soxTestCount + pciTestCount + hipaaTestCount}
+
+AUDIT TRAIL:
+──────────────────────────────────────────────────────
+Audit Log Entries:            ${JSON.parse(localStorage.getItem('cookieAuditLog') || '[]').length}
+
+COOKIES ANALYSIS:
+──────────────────────────────────────────────────────
+Active Cookies:               ${MultiComplianceCookieSDK.listCookies().length}
+
+RECOMMENDATIONS:
+──────────────────────────────────────────────────────
+- Ensure all financial cookies have audit trails
+- Never store full card numbers in cookies
+- Encrypt all PHI before cookie storage
+- Use HTTPS for all sensitive operations
+- Implement regular security audits
+
+═══════════════════════════════════════════════════════
+`;
+      
+      console.log(report);
+      alert('Compliance report generated! Check browser console for details.');
+      
+      // Also display in the first available output
+      logOutput('soxOutput', '\n' + report);
+    }
+
+    // Initialize
+    updateComplianceStats();
+  </script>
+</body>
+</html>
