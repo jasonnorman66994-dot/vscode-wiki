@@ -983,6 +983,7 @@
       logOutput('performanceOutput', `  - 10 cookies created in ${duration}ms`, 'info');
       logOutput('performanceOutput', `  - Average: ${(duration / 10).toFixed(2)}ms per cookie`, 'info');
       totalPassCount++;
+      updateComplianceStats();
       
       // Cleanup
       for (let i = 0; i < 10; i++) {
@@ -1005,6 +1006,7 @@
       logOutput('performanceOutput', `  - Total size: ${totalSize} bytes`, 'info');
       logOutput('performanceOutput', `  - Recommended max: 4096 bytes`, 'info');
       totalPassCount++;
+      updateComplianceStats();
       
       if (totalSize > 4096) {
         logOutput('performanceOutput', '  - WARNING: Cookie size exceeds recommended limit', 'fail');
@@ -1030,6 +1032,7 @@
       logOutput('performanceOutput', 'Concurrent session test: PASSED', 'pass');
       logOutput('performanceOutput', `  - ${sessionCount} sessions in ${duration}ms`, 'info');
       totalPassCount++;
+      updateComplianceStats();
       
       // Cleanup
       for (let i = 0; i < sessionCount; i++) {
@@ -1061,6 +1064,7 @@
       logOutput('performanceOutput', `  - Read time: ${readTime}ms`, 'info');
       logOutput('performanceOutput', `  - Data integrity: ${retrieved === cacheValue ? 'OK' : 'FAILED'}`, 'info');
       totalPassCount++;
+      updateComplianceStats();
       
       MultiComplianceCookieSDK.deleteCookie(cacheKey);
     }
