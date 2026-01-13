@@ -459,8 +459,9 @@
           if (options.path) cookieStr += `; path=${options.path}`;
           if (options.domain) cookieStr += `; domain=${options.domain}`;
           if (options.secure) cookieStr += `; Secure`;
-          // Note: HttpOnly flag can only be set server-side via Set-Cookie header
-          // Setting it here via document.cookie will have no effect in browsers
+          // Note: HttpOnly flag can only be set server-side via Set-Cookie HTTP response header.
+          // Browsers ignore HttpOnly when set client-side via document.cookie for security reasons.
+          // This is added to the cookie string for demonstration purposes only.
           if (options.httpOnly) cookieStr += `; HttpOnly`;
           if (options.sameSite) cookieStr += `; SameSite=${options.sameSite}`;
 
