@@ -438,7 +438,7 @@
   </div>
 
   <script>
-    // Test Configuration Constants
+    // Test timing and count constants
     const COMPLIANCE_TEST_INITIAL_DELAY_MS = 100;
     const COMPLIANCE_TEST_STEP_DELAY_MS = 200;
     const TESTS_PER_CATEGORY = 4;
@@ -1063,8 +1063,8 @@
       logOutput('performanceOutput', `  - Write time: ${writeTime}ms`, 'info');
       logOutput('performanceOutput', `  - Read time: ${readTime}ms`, 'info');
       logOutput('performanceOutput', `  - Data integrity: ${retrieved === cacheValue ? 'OK' : 'FAILED'}`, 'info');
+      
       totalPassCount++;
-      updateComplianceStats();
       
       MultiComplianceCookieSDK.deleteCookie(cacheKey);
     }
